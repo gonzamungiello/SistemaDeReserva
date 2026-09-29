@@ -61,8 +61,10 @@ namespace SistemaReservasCanchas
                 // Mostramos el menu(está en su propia función más arriba).
                 MostrarMenu();
 
-                // Leemos el texto que escribe el usuario y lo convertimos a número.
-                opcion = int.Parse(Console.ReadLine());
+                if (!int.TryParse(Console.ReadLine(), out opcion))
+                {
+                    opcion = -1; // Si el usuario pone una opcion no valida, se asigna -1 para que entre en el default del switch.
+                }
 
                 // switch: según el número, hacemos una cosa distinta.
                 switch (opcion)
