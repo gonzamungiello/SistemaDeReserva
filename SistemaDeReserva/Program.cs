@@ -20,7 +20,7 @@ namespace SistemaReservasCanchas
         // =====================================================
 
         // Cantidad máxima de canchas que puede tener el sistema.
-        static int MAX_CANCHAS = 10;
+        static int MAX_CANCHAS = 3;
 
         // En vez de usar 4 arreglos paralelos, usamos un solo arreglo 
         // del tipo "Cancha" que definimos arriba en el struct.
@@ -64,8 +64,14 @@ namespace SistemaReservasCanchas
             Console.Write("\nNombre de la cancha: ");
             string nombre = Console.ReadLine();
 
+            decimal precio;
             Console.Write("Precio por hora: ");
-            decimal precio = decimal.Parse(Console.ReadLine());
+            while (!decimal.TryParse(Console.ReadLine(), out precio) || precio <= 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("Precio inválido. Ingresá un número válido mayor a 0: ");
+                Console.ResetColor();
+            }
 
             Console.Write("Tipo de superficie (S = sintetico, C = cemento): ");
             char superficie = char.Parse(Console.ReadLine());
@@ -136,7 +142,14 @@ namespace SistemaReservasCanchas
             }
 
             Console.Write("Nuevo precio para " + canchas[indice].Nombre + ": ");
-            decimal nuevoPrecio = decimal.Parse(Console.ReadLine());
+            decimal nuevoPrecio;
+            Console.Write("Precio por hora: ");
+            while (!decimal.TryParse(Console.ReadLine(), out nuevoPrecio) || nuevoPrecio <= 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("Precio inválido. Ingresá un número válido mayor a 0: ");
+                Console.ResetColor();
+            }
 
             // Accedemos a la propiedad Precio dentro del struct
             canchas[indice].Precio = nuevoPrecio;
@@ -260,11 +273,11 @@ namespace SistemaReservasCanchas
             Console.Write("Elegi el dia: ");
             int dia = int.Parse(Console.ReadLine()) - 1;
 
-            Console.Write("Elegi el horario (0 a 23): ");
+            Console.Write("Elegi el horario (18 a 23): ");
             int hora = int.Parse(Console.ReadLine());
 
             // Validamos que el dia y la hora esten dentro de los rangos posibles.
-            if (dia < 0 || dia > 6 || hora < 0 || hora > 23)
+            if (dia < 0 || dia > 6 || hora < 18 || hora > 23)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("\nDia u horario invalido.");
@@ -328,7 +341,7 @@ namespace SistemaReservasCanchas
             // pantalla, asi que mostramos solo el horario en el
             // que realmente se usa una cancha (18 a 22hs).
             int horaInicio = 18;
-            int horaFin = 22;
+            int horaFin = 23;
 
             Console.WriteLine("\nDisponibilidad de " + canchas[cancha].Nombre + ":\n");
 
@@ -366,6 +379,54 @@ namespace SistemaReservasCanchas
 
                 Console.WriteLine();
             }
+        }
+
+        static void CargarDatosIniciales()
+        {
+            // --- Cancha 1 ---
+            Cancha c1;
+            c1.Nombre = "Cancha Sintetico 1 - Futbol 8";
+            c1.Precio = 100000;
+            c1.Superficie = 'S';
+            c1.Techada = true;
+
+            canchas[cantidadCanchas] = c1;
+
+            // Habilitamos su disponibilidad inicial
+            for (int dia = 0; dia < 7; dia++)
+            {
+                for (int hora = 0; hora < 24; hora++)
+                {
+                    disponibilidad[cantidadCanchas, dia, hora] = true;
+                }
+            }
+            cantidadCanchas++;
+
+            // --- Cancha 2 ---
+            Cancha c2;
+            c2.Nombre = "Cancha Cemento 2 - Futbol 5";
+            c2.Precio = 75000;
+            c2.Superficie = 'C';
+            c2.Techada = false;
+
+            canchas[cantidadCanchas] = c2;
+
+            for (int dia = 0; dia < 7; dia++)
+            {
+                for (int hora = 0; hora < 24; hora++)
+                {
+                    disponibilidad[cantidadCanchas, dia, hora] = true;
+                }
+            }
+            cantidadCanchas++;
+
+            // Reservamos para la Cancha 0 (Sintetico 1), el día 0 (Lunes) a las 19 hs:
+            disponibilidad[0, 0, 19] = false;
+            listaReservas.Add("Carlos Perez - Cancha Sintetico 1 - Lunes - 19:00");
+
+            // Reservamos para la Cancha 0, el día 4 (Viernes) a las 21 hs:
+            disponibilidad[0, 4, 21] = false;
+            listaReservas.Add("Gonzalo Rodriguez - Cancha Sintetico 1 - Viernes - 21:00");
         }
 
 
@@ -425,13 +486,18 @@ namespace SistemaReservasCanchas
         // =====================================================
         static void Main(string[] args)
         {
+            CargarDatosIniciales();
             int opcion;
 
             // El menu se repite hasta que se elija la opcion 0.
             do
             {
                 MostrarMenu();
-                opcion = int.Parse(Console.ReadLine());
+
+                if (!int.TryParse(Console.ReadLine(), out opcion))
+                {
+                    opcion = -1; // Le asignamos un valor que caiga en el 'default' del switch
+                }
 
                 switch (opcion)
                 {
