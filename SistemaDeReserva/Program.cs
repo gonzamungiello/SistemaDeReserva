@@ -3,6 +3,15 @@ using System.Collections.Generic;
 
 namespace SistemaReservasCanchas
 {
+    // Definimos el struct para agrupar los datos de cada cancha en un solo lugar
+    struct Cancha
+    {
+        public string Nombre;
+        public decimal Precio;
+        public char Superficie;
+        public bool Techada;
+    }
+
     class Program
     {
         // =====================================================
@@ -13,17 +22,12 @@ namespace SistemaReservasCanchas
         // Cantidad máxima de canchas que puede tener el sistema.
         static int MAX_CANCHAS = 10;
 
-        // Arreglos paralelos: la posición [0] de cada uno
-        // corresponde a los datos de la misma cancha.
-        // Ej: nombresCancha[2], preciosCancha[2] y techada[2]
-        // son todos datos de la cancha número 3 (índice 2).
-        static string[] nombresCancha = new string[MAX_CANCHAS];
-        static decimal[] preciosCancha = new decimal[MAX_CANCHAS];
-        static char[] superficieCancha = new char[MAX_CANCHAS];
-        static bool[] techadaCancha = new bool[MAX_CANCHAS];
+        // En vez de usar 4 arreglos paralelos, usamos un solo arreglo 
+        // del tipo "Cancha" que definimos arriba en el struct.
+        static Cancha[] canchas = new Cancha[MAX_CANCHAS];
 
         // Cuenta cuántas canchas hay cargadas realmente
-        // (los arreglos de arriba tienen tamaño 10 fijo,
+        // (el arreglo de arriba tiene tamaño 10 fijo,
         // pero puede que todavía no estén todas usadas).
         static int cantidadCanchas = 0;
 
@@ -70,11 +74,15 @@ namespace SistemaReservasCanchas
             string respuestaTechada = Console.ReadLine();
             bool techada = (respuestaTechada == "s"); // si escribe "s" queda true, sino false
 
-            // Guardamos todo en la posición "cantidadCanchas" de cada arreglo.
-            nombresCancha[cantidadCanchas] = nombre;
-            preciosCancha[cantidadCanchas] = precio;
-            superficieCancha[cantidadCanchas] = superficie;
-            techadaCancha[cantidadCanchas] = techada;
+            // Armamos la variable del struct y le asignamos sus propiedades
+            Cancha nuevaCancha;
+            nuevaCancha.Nombre = nombre;
+            nuevaCancha.Precio = precio;
+            nuevaCancha.Superficie = superficie;
+            nuevaCancha.Techada = techada;
+
+            // Guardamos la cancha completa en la posición "cantidadCanchas" del arreglo.
+            canchas[cantidadCanchas] = nuevaCancha;
 
             // Como agregamos una cancha nueva, al principio todos sus
             // horarios están libres. Recorremos toda su grilla semanal
@@ -127,10 +135,11 @@ namespace SistemaReservasCanchas
                 return;
             }
 
-            Console.Write("Nuevo precio para " + nombresCancha[indice] + ": ");
+            Console.Write("Nuevo precio para " + canchas[indice].Nombre + ": ");
             decimal nuevoPrecio = decimal.Parse(Console.ReadLine());
 
-            preciosCancha[indice] = nuevoPrecio;
+            // Accedemos a la propiedad Precio dentro del struct
+            canchas[indice].Precio = nuevoPrecio;
 
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("\nPrecio actualizado.");
@@ -164,16 +173,12 @@ namespace SistemaReservasCanchas
                 return;
             }
 
-            // Para "borrar" del medio de un arreglo, corremos todos los
-            // datos que estaban despues una posicion hacia atras.
-            // Hay que hacerlo en los 4 arreglos a la vez porque son
-            // paralelos (si no, se desordenan los datos entre si).
+            // Para "borrar" del medio del arreglo, corremos todos los
+            // elementos una posición hacia atrás.
+            // Como usamos un struct, se corren todos los datos juntos en una sola línea.
             for (int i = indice; i < cantidadCanchas - 1; i++)
             {
-                nombresCancha[i] = nombresCancha[i + 1];
-                preciosCancha[i] = preciosCancha[i + 1];
-                superficieCancha[i] = superficieCancha[i + 1];
-                techadaCancha[i] = techadaCancha[i + 1];
+                canchas[i] = canchas[i + 1];
             }
 
             cantidadCanchas--;
@@ -208,10 +213,10 @@ namespace SistemaReservasCanchas
                 Console.Write((i + 1) + ". "); // le sumamos 1 para que se vea desde el 1 y no desde el 0
                 Console.ResetColor();
 
-                Console.Write(nombresCancha[i] + " - $" + preciosCancha[i] + " - ");
-                Console.Write(superficieCancha[i] == 'S' ? "Sintetico" : "Cemento");
+                Console.Write(canchas[i].Nombre + " - $" + canchas[i].Precio + " - ");
+                Console.Write(canchas[i].Superficie == 'S' ? "Sintetico" : "Cemento");
 
-                if (techadaCancha[i])
+                if (canchas[i].Techada)
                 {
                     Console.Write(" - Techada");
                 }
@@ -284,7 +289,7 @@ namespace SistemaReservasCanchas
 
             // Armamos un texto con todos los datos de la reserva
             // y lo agregamos a la lista.
-            string datosReserva = cliente + " - " + nombresCancha[cancha] + " - " + nombresDias[dia] + " - " + hora + ":00";
+            string datosReserva = cliente + " - " + canchas[cancha].Nombre + " - " + nombresDias[dia] + " - " + hora + ":00";
             listaReservas.Add(datosReserva);
 
             Console.ForegroundColor = ConsoleColor.Green;
@@ -325,11 +330,11 @@ namespace SistemaReservasCanchas
             int horaInicio = 18;
             int horaFin = 22;
 
-            Console.WriteLine("\nDisponibilidad de " + nombresCancha[cancha] + ":\n");
+            Console.WriteLine("\nDisponibilidad de " + canchas[cancha].Nombre + ":\n");
 
             // Encabezado con los nombres de los dias.
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write("       ");
+            Console.Write("        ");
             for (int dia = 0; dia < 7; dia++)
             {
                 Console.Write(nombresDias[dia].Substring(0, 3) + "  "); // mostramos solo las primeras 3 letras
@@ -373,7 +378,7 @@ namespace SistemaReservasCanchas
 
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("=====================================");
-            Console.WriteLine("   SISTEMA DE RESERVAS DE CANCHAS");
+            Console.WriteLine("    SISTEMA DE RESERVAS DE CANCHAS");
             Console.WriteLine("=====================================");
             Console.ResetColor();
 
