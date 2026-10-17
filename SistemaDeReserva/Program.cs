@@ -27,7 +27,7 @@ namespace SistemaReservasCanchas
         static Cancha[] canchas = new Cancha[MAX_CANCHAS];
 
         // Cuenta cuántas canchas hay cargadas realmente
-        // (el arreglo de arriba tiene tamaño 10 fijo,
+        // (el arreglo de arriba tiene tamaño 3 fijo,
         // pero puede que todavía no estén todas usadas).
         static int cantidadCanchas = 0;
 
@@ -200,7 +200,7 @@ namespace SistemaReservasCanchas
             Console.WriteLine("\nCancha eliminada.");
             Console.ResetColor();
 
-            // Ojo: esto no borra las reservas que ya se hicieron para
+            // esto no borra las reservas que ya se hicieron para
             // esa cancha. Lo dejamos asi por ahora, es algo que
             // podriamos mejorar despues.
         }
