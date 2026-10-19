@@ -339,7 +339,7 @@ namespace SistemaReservasCanchas
 
             // Mostrar las 24 horas completas no entra bien en la
             // pantalla, asi que mostramos solo el horario en el
-            // que realmente se usa una cancha (18 a 22hs).
+            // que realmente se usa una cancha (18 a 23hs).
             int horaInicio = 18;
             int horaFin = 23;
 
